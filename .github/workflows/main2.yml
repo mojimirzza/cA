@@ -23,13 +23,17 @@ jobs:
       - name: Create extraction dir
         run: mkdir -p itxn_final_v3_3_extracted
 
-      - name: Unzip archive
+      - name: Find and unzip archive
         run: |
-          if [ -f "ITXN_MOBILE_LAB_PATCHED_v3_3.zip" ]; then
-            unzip -o ITXN_MOBILE_LAB_PATCHED_v3_3.zip -d itxn_final_v3_3_extracted
-          else
-            echo "ZIP file not found" && exit 1
+          echo "Files in repo root:"
+          ls -la
+          ZIPFILE=$(ls -1 *.zip 2>/dev/null | head -1)
+          if [ -z "$ZIPFILE" ]; then
+            echo "ERROR: No .zip file found!" >&2
+            exit 1
           fi
+          echo "Found ZIP: $ZIPFILE"
+          unzip -o "$ZIPFILE" -d itxn_final_v3_3_extracted
 
       - name: Commit extracted files
         env:
@@ -38,6 +42,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add itxn_final_v3_3_extracted || true
-          git commit -m "Add extracted contents of ITXN_MOBILE_LAB_PATCHED_v3_3.zip" || echo "No changes to commit"
+          git commit -m "Add extracted contents from ZIP" || echo "No changes to commit"
           git push origin HEAD:main || echo "Push failed"
           
