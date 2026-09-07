@@ -12,10 +12,11 @@ jobs:
   unzip:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout with LFS
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          lfs: true
 
       - name: Install unzip
         run: sudo apt-get update && sudo apt-get install -y unzip
@@ -23,17 +24,14 @@ jobs:
       - name: Create extraction dir
         run: mkdir -p itxn_final_v3_3_extracted
 
-      - name: Find and unzip archive
+      - name: Verify ZIP
         run: |
-          echo "Files in repo root:"
-          ls -la
-          ZIPFILE=$(ls -1 *.zip 2>/dev/null | head -1)
-          if [ -z "$ZIPFILE" ]; then
-            echo "ERROR: No .zip file found!" >&2
-            exit 1
-          fi
-          echo "Found ZIP: $ZIPFILE"
-          unzip -o "$ZIPFILE" -d itxn_final_v3_3_extracted
+          ls -la ITXN_MOBILE_LAB_PATCHED_v3_3.zip
+          file ITXN_MOBILE_LAB_PATCHED_v3_3.zip
+
+      - name: Unzip archive
+        run: |
+          unzip -o ITXN_MOBILE_LAB_PATCHED_v3_3.zip -d itxn_final_v3_3_extracted
 
       - name: Commit extracted files
         env:
